@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { MapPin, Activity, Mic, Wifi, WifiOff } from "lucide-react";
 import { SOSButton } from "@/components/SOSButton";
@@ -14,30 +14,28 @@ export default function Dashboard() {
   const risk = useRiskEngine(location, accelerometer, isTracking);
   const { contacts } = useEmergencyContacts();
   const { toast } = useToast();
-  const [sosActive, setSosActive] = useState(false);
+  const [protectionOn, setProtectionOn] = useState(true);
+  const [sosTriggered, setSosTriggered] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const sosCooldownRef = useRef(false);
 
   useEffect(() => {
     startTracking();
     return () => stopTracking();
   }, [startTracking, stopTracking]);
 
-  // Auto-trigger SOS at critical risk
-  useEffect(() => {
-    if (risk.level === "critical" && !sosActive) {
-      toast({
-        title: "⚠️ Critical Risk Detected",
-        description: "Risk level is critical. Hold the SOS button to send alerts.",
-        variant: "destructive",
-      });
-    }
-  }, [risk.level, sosActive, toast]);
-
-  const handleSOS = useCallback(() => {
-    setSosActive(true);
+  const triggerSOS = useCallback(() => {
+    if (sosCooldownRef.current) return;
+    sosCooldownRef.current = true;
+    setSosTriggered(true);
     setIsRecording(true);
 
-    // Simulate sending alerts
+    toast({
+      title: "🚨 AI Auto-SOS Triggered",
+      description: "Critical risk detected — alerting your trusted contacts now.",
+      variant: "destructive",
+    });
+
     contacts.forEach((contact) => {
       toast({
         title: `📨 Alert sent to ${contact.name}`,
@@ -47,24 +45,55 @@ export default function Dashboard() {
 
     if (contacts.length === 0) {
       toast({
-        title: "⚠️ No emergency contacts",
-        description: "Add contacts in the Contacts tab to send real alerts.",
+        title: "⚠️ No trusted contacts",
+        description: "Add contacts in the Contacts tab to enable auto-alerts.",
         variant: "destructive",
       });
     }
 
     toast({
-      title: "🎙️ Audio recording started",
-      description: "Recording audio evidence (simulated)",
+      title: "🎙️ Audio evidence recording",
+      description: "Recording started automatically (simulated)",
     });
 
-    // Auto-deactivate after 30s for demo
+    // Reset after 30s
     setTimeout(() => {
-      setSosActive(false);
+      setSosTriggered(false);
       setIsRecording(false);
-      toast({ title: "SOS deactivated", description: "Alert session ended." });
+      sosCooldownRef.current = false;
+      toast({ title: "✅ SOS session ended", description: "AI continues monitoring." });
     }, 30000);
   }, [contacts, toast]);
+
+  // Auto-trigger SOS when AI detects critical risk
+  useEffect(() => {
+    if (protectionOn && risk.level === "critical" && !sosTriggered) {
+      triggerSOS();
+    }
+  }, [protectionOn, risk.level, sosTriggered, triggerSOS]);
+
+  // Warn at high risk
+  useEffect(() => {
+    if (protectionOn && risk.level === "high" && !sosTriggered) {
+      toast({
+        title: "⚠️ High risk detected",
+        description: "AI is closely monitoring. SOS will auto-trigger if risk escalates.",
+      });
+    }
+  }, [protectionOn, risk.level, sosTriggered, toast]);
+
+  const toggleProtection = useCallback(() => {
+    setProtectionOn((prev) => {
+      const next = !prev;
+      toast({
+        title: next ? "🛡️ Auto Protection ON" : "Protection OFF",
+        description: next
+          ? "AI will analyze your situation and auto-alert contacts if needed."
+          : "Automatic protection disabled.",
+      });
+      return next;
+    });
+  }, [toast]);
 
   return (
     <div className="min-h-screen pb-24 safe-area-top">
@@ -97,8 +126,25 @@ export default function Dashboard() {
         transition={{ delay: 0.2, type: "spring" }}
         className="flex justify-center py-6"
       >
-        <SOSButton riskLevel={risk.level} onActivate={handleSOS} isActive={sosActive} />
+        <SOSButton
+          riskLevel={risk.level}
+          isProtectionOn={protectionOn}
+          onToggle={toggleProtection}
+          sosTriggered={sosTriggered}
+        />
       </motion.div>
+
+      {/* Status label */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.25 }}
+        className="text-center text-xs text-muted-foreground mb-4"
+      >
+        {protectionOn
+          ? "AI is analyzing your surroundings in real-time"
+          : "Tap to enable auto protection"}
+      </motion.p>
 
       {/* Stats Grid */}
       <motion.div
