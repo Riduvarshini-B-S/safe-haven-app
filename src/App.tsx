@@ -45,6 +45,7 @@ const App = () => (
 );
 
 function BottomNavWrapper() {
+  const location = useLocation();
   const onboarded = localStorage.getItem("safeguard_onboarded") === "true";
   if (!onboarded) return null;
   return <BottomNav />;
