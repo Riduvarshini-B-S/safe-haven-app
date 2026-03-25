@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { MapPin, Activity, Mic, Wifi, WifiOff } from "lucide-react";
 import { SOSButton } from "@/components/SOSButton";
 import { RiskMeter } from "@/components/RiskMeter";
+import { AIDetectionPanel } from "@/components/AIDetectionPanel";
 import { StatusCard } from "@/components/StatusCard";
 import { useSensors } from "@/hooks/useSensors";
 import { useRiskEngine } from "@/hooks/useRiskEngine";
