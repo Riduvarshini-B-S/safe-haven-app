@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { MapPin, Activity, Mic, Wifi, WifiOff } from "lucide-react";
 import { SOSButton } from "@/components/SOSButton";
 import { RiskMeter } from "@/components/RiskMeter";
+import { AIDetectionPanel } from "@/components/AIDetectionPanel";
 import { StatusCard } from "@/components/StatusCard";
 import { useSensors } from "@/hooks/useSensors";
 import { useRiskEngine } from "@/hooks/useRiskEngine";
@@ -187,7 +188,22 @@ export default function Dashboard() {
         />
       </motion.div>
 
-      {/* Risk Meter */}
+      {/* AI Detection Panel */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+        className="px-5 mb-4"
+      >
+        <AIDetectionPanel
+          riskLevel={risk.level}
+          accelerometer={accelerometer}
+          isRecording={isRecording}
+          isTracking={isTracking}
+        />
+      </motion.div>
+
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
