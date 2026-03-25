@@ -145,16 +145,44 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Status label */}
-      <motion.p
+      {/* Emergency Mode Indicator */}
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.25 }}
-        className="text-center text-xs text-muted-foreground mb-4"
+        className="mx-5 mb-4"
       >
-        {protectionOn
-          ? "AI is analyzing your surroundings in real-time"
-          : "Tap to enable auto protection"}
-      </motion.p>
+        <div
+          className={cn(
+            "flex items-center gap-2.5 rounded-xl px-4 py-3 border transition-colors duration-500",
+            sosTriggered
+              ? "bg-danger/10 border-danger/30"
+              : "bg-safe/10 border-safe/30"
+          )}
+        >
+          <span className="text-base">{sosTriggered ? "🚨" : "🛡️"}</span>
+          <div className="flex-1">
+            <p
+              className={cn(
+                "text-sm font-display font-bold",
+                sosTriggered ? "text-danger" : "text-safe"
+              )}
+            >
+              {sosTriggered ? "Emergency Mode" : "Normal Mode"}
+            </p>
+            <p className="text-[11px] text-muted-foreground">
+              {sosTriggered
+                ? "Auto triggered — contacts alerted"
+                : protectionOn
+                ? "AI is analyzing your surroundings"
+                : "Tap to enable auto protection"}
+            </p>
+          </div>
+          {sosTriggered && (
+            <span className="w-2.5 h-2.5 rounded-full bg-danger animate-pulse" />
+          )}
+        </div>
+      </motion.div>
 
       {/* Stats Grid */}
       <motion.div
