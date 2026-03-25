@@ -20,6 +20,13 @@ export default function Dashboard() {
   const [isRecording, setIsRecording] = useState(false);
   const sosCooldownRef = useRef(false);
 
+  // Shake detection triggers SOS regardless of protection state
+  useShakeDetection({
+    threshold: 25,
+    shakeCount: 3,
+    onShake: triggerSOS,
+  });
+
   useEffect(() => {
     startTracking();
     return () => stopTracking();
