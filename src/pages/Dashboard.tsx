@@ -203,7 +203,20 @@ export default function Dashboard() {
           isTracking={isTracking}
         />
       </motion.div>
-
+      {/* Auto Response Panel */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.38 }}
+        className="px-5 mb-4"
+      >
+        <AutoResponsePanel
+          sosTriggered={sosTriggered}
+          contactsAlerted={sosTriggered && contacts.length > 0}
+          locationShared={sosTriggered && !!location}
+          audioRecording={isRecording}
+        />
+      </motion.div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
