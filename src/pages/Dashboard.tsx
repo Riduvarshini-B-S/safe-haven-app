@@ -7,6 +7,7 @@ import { StatusCard } from "@/components/StatusCard";
 import { useSensors } from "@/hooks/useSensors";
 import { useRiskEngine } from "@/hooks/useRiskEngine";
 import { useEmergencyContacts } from "@/hooks/useEmergencyContacts";
+import { useShakeDetection } from "@/hooks/useShakeDetection";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
