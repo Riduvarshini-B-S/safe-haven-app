@@ -4,6 +4,7 @@ import { MapPin, Activity, Mic, Wifi, WifiOff } from "lucide-react";
 import { SOSButton } from "@/components/SOSButton";
 import { RiskMeter } from "@/components/RiskMeter";
 import { AIDetectionPanel } from "@/components/AIDetectionPanel";
+import { AutoResponsePanel } from "@/components/AutoResponsePanel";
 import { StatusCard } from "@/components/StatusCard";
 import { useSensors } from "@/hooks/useSensors";
 import { useRiskEngine } from "@/hooks/useRiskEngine";
