@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { MapPin, Activity, Mic, Wifi, WifiOff } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { SOSButton } from "@/components/SOSButton";
 import { RiskMeter } from "@/components/RiskMeter";
 import { AIDetectionPanel } from "@/components/AIDetectionPanel";
