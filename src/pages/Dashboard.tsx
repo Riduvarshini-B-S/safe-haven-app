@@ -7,6 +7,7 @@ import { StatusCard } from "@/components/StatusCard";
 import { useSensors } from "@/hooks/useSensors";
 import { useRiskEngine } from "@/hooks/useRiskEngine";
 import { useEmergencyContacts } from "@/hooks/useEmergencyContacts";
+import { useShakeDetection } from "@/hooks/useShakeDetection";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
@@ -64,6 +65,13 @@ export default function Dashboard() {
       toast({ title: "✅ SOS session ended", description: "AI continues monitoring." });
     }, 30000);
   }, [contacts, toast]);
+
+  // Shake detection triggers SOS regardless of protection state
+  useShakeDetection({
+    threshold: 25,
+    shakeCount: 3,
+    onShake: triggerSOS,
+  });
 
   // Auto-trigger SOS when AI detects critical risk
   useEffect(() => {
