@@ -64,6 +64,7 @@ export default function Dashboard() {
       sosCooldownRef.current = false;
       toast({ title: "✅ SOS session ended", description: "AI continues monitoring." });
     }, 30000);
+  }, [contacts, toast]);
 
   // Shake detection triggers SOS regardless of protection state
   useShakeDetection({
@@ -71,8 +72,6 @@ export default function Dashboard() {
     shakeCount: 3,
     onShake: triggerSOS,
   });
-
-
 
   // Auto-trigger SOS when AI detects critical risk
   useEffect(() => {
