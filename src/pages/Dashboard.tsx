@@ -172,8 +172,8 @@ export default function Dashboard() {
         <StatusCard
           icon={Activity}
           label="Motion"
-          value={accelerometer ? `${accelerometer.magnitude.toFixed(1)} m/s²` : "No data"}
-          variant={accelerometer && accelerometer.magnitude > 25 ? "danger" : "default"}
+          value={accelerometer ? `${accelerometer.magnitude.toFixed(1)} m/s²` : isTracking ? "Monitoring" : "Inactive"}
+          variant={accelerometer && accelerometer.magnitude > 25 ? "danger" : isTracking ? "safe" : "default"}
         />
         <StatusCard
           icon={Mic}
