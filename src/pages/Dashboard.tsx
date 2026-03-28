@@ -230,6 +230,8 @@ export default function Dashboard() {
           accelerometer={accelerometer}
           isRecording={isRecording}
           isTracking={isTracking}
+          threats={risk.threats}
+          behaviorProfile={risk.behaviorProfile}
         />
       </motion.div>
       {/* Auto Response Panel */}

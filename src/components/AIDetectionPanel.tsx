@@ -1,6 +1,6 @@
-import { Brain, AudioLines, Move } from "lucide-react";
+import { Brain, AudioLines, Move, MapPin, Route, Clock, AlertTriangle, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { RiskLevel } from "@/hooks/useRiskEngine";
+import type { RiskLevel, ThreatFactor, BehaviorProfile } from "@/hooks/useRiskEngine";
 import type { AccelerometerData } from "@/hooks/useSensors";
 
 interface AIDetectionPanelProps {
@@ -8,6 +8,8 @@ interface AIDetectionPanelProps {
   accelerometer: AccelerometerData | null;
   isRecording: boolean;
   isTracking: boolean;
+  threats: ThreatFactor[];
+  behaviorProfile: BehaviorProfile;
 }
 
 interface DetectionRow {
@@ -17,10 +19,17 @@ interface DetectionRow {
   isAbnormal: boolean;
 }
 
-export function AIDetectionPanel({ riskLevel, accelerometer, isRecording, isTracking }: AIDetectionPanelProps) {
+export function AIDetectionPanel({
+  riskLevel,
+  accelerometer,
+  isRecording,
+  isTracking,
+  threats,
+  behaviorProfile,
+}: AIDetectionPanelProps) {
   const behaviorAbnormal = riskLevel === "high" || riskLevel === "critical";
   const movementSudden = accelerometer ? accelerometer.magnitude > 25 : false;
-  const voiceStress = isRecording; // simulated: stress when recording is active
+  const voiceStress = isRecording;
 
   const rows: DetectionRow[] = [
     {
@@ -38,35 +47,81 @@ export function AIDetectionPanel({ riskLevel, accelerometer, isRecording, isTrac
     {
       icon: Move,
       label: "Movement",
-      status: movementSudden ? "Sudden" : "Stable",
-      isAbnormal: movementSudden,
+      status: movementSudden
+        ? "Sudden"
+        : behaviorProfile.erraticMovement
+        ? "Erratic"
+        : "Stable",
+      isAbnormal: movementSudden || behaviorProfile.erraticMovement,
+    },
+    {
+      icon: Route,
+      label: "Route",
+      status: behaviorProfile.routeDeviation ? "Deviated" : "On Track",
+      isAbnormal: behaviorProfile.routeDeviation,
+    },
+    {
+      icon: MapPin,
+      label: "Geofence",
+      status: behaviorProfile.isolatedArea ? "Outside" : "Safe Zone",
+      isAbnormal: behaviorProfile.isolatedArea,
+    },
+    {
+      icon: Clock,
+      label: "Dwell",
+      status: behaviorProfile.dwellAnomaly ? "Anomaly" : "Normal",
+      isAbnormal: behaviorProfile.dwellAnomaly,
     },
   ];
 
+  const severityColor = {
+    info: "text-primary",
+    warning: "text-warning",
+    danger: "text-danger",
+  };
+
+  const severityBg = {
+    info: "bg-primary/10",
+    warning: "bg-warning/10",
+    danger: "bg-danger/10",
+  };
+
+  const activeDangerThreats = threats.filter((t) => t.severity === "danger");
+
   return (
     <div className="rounded-2xl bg-card border border-border p-4 shadow-[var(--shadow-card)]">
+      {/* Header */}
       <div className="flex items-center gap-2 mb-3">
         <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
           <Brain className="w-4 h-4 text-primary" />
         </div>
         <h3 className="font-display font-bold text-sm text-card-foreground tracking-wide">
-          AI STATUS
+          AI THREAT DETECTION
         </h3>
         <span
           className={cn(
             "ml-auto text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full",
-            isTracking
-              ? behaviorAbnormal
-                ? "bg-danger/15 text-danger"
-                : "bg-safe/15 text-safe"
-              : "bg-muted text-muted-foreground"
+            !isTracking
+              ? "bg-muted text-muted-foreground"
+              : activeDangerThreats.length > 0
+              ? "bg-danger/15 text-danger"
+              : behaviorAbnormal
+              ? "bg-warning/15 text-warning"
+              : "bg-safe/15 text-safe"
           )}
         >
-          {!isTracking ? "Offline" : behaviorAbnormal ? "Alert" : "Active"}
+          {!isTracking
+            ? "Offline"
+            : activeDangerThreats.length > 0
+            ? "Threat"
+            : behaviorAbnormal
+            ? "Alert"
+            : "Secure"}
         </span>
       </div>
 
-      <div className="space-y-2.5">
+      {/* Detection rows */}
+      <div className="space-y-2">
         {rows.map((row) => (
           <div key={row.label} className="flex items-center gap-3">
             <div
@@ -102,6 +157,37 @@ export function AIDetectionPanel({ riskLevel, accelerometer, isRecording, isTrac
           </div>
         ))}
       </div>
+
+      {/* Active Threats */}
+      {threats.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-border">
+          <div className="flex items-center gap-1.5 mb-2">
+            <AlertTriangle className="w-3.5 h-3.5 text-warning" />
+            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+              Active Signals ({threats.length})
+            </span>
+          </div>
+          <div className="space-y-1.5 max-h-32 overflow-y-auto">
+            {threats.slice(0, 5).map((threat) => (
+              <div
+                key={threat.id}
+                className={cn(
+                  "flex items-start gap-2 rounded-lg px-2.5 py-1.5 text-[11px]",
+                  severityBg[threat.severity]
+                )}
+              >
+                <Shield className={cn("w-3 h-3 mt-0.5 shrink-0", severityColor[threat.severity])} />
+                <div className="min-w-0">
+                  <span className={cn("font-bold", severityColor[threat.severity])}>
+                    {threat.label}
+                  </span>
+                  <p className="text-muted-foreground leading-tight">{threat.detail}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
